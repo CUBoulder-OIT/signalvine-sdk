@@ -4,7 +4,7 @@ Use the SignalVine API with Python
 
 ## Installation
 
-    pip install git+https://github.com/CUBoulder-OIT/signalvine-sdk@master#signalvine-sdk
+    pip install git+https://github.com/CUBoulder-OIT/signalvine-sdk@master#egg=signalvine-sdk
 
 ## Building and Distribution
 
