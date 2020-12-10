@@ -1,6 +1,7 @@
 import requests
 
-from common import APIError, build_headers
+from .common import build_headers
+
 from typing import List, Dict
 
 

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from common import sign_request, build_headers
+from src.signalvine_sdk.common import build_headers, sign_request
 
 
 class TestClass:

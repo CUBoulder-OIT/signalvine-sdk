@@ -1,6 +1,7 @@
 import pytest
 import os
-from src.sdk import APIError, SignalVineSDK
+from src.signalvine_sdk.sdk import SignalVineSDK
+from src.signalvine_sdk.common import APIError
 
 
 class TestClass:
