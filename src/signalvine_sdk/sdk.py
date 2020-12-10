@@ -1,6 +1,6 @@
 import requests
+from src.signalvine_sdk.common import APIError, build_headers
 
-from .common import build_headers
 
 from typing import List, Dict
 
