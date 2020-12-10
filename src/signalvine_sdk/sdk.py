@@ -1,6 +1,6 @@
 import requests
 import logging
-from src.signalvine_sdk.common import (
+from signalvine_sdk.common import (
     APIError,
     build_headers,
     convert_participants_to_records,

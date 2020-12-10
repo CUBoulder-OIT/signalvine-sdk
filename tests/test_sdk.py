@@ -1,7 +1,7 @@
 import pytest
 import os
-from src.signalvine_sdk.sdk import SignalVineSDK
-from src.signalvine_sdk.common import APIError
+from signalvine_sdk.sdk import SignalVineSDK
+from signalvine_sdk.common import APIError
 import logging
 
 LOGGER = logging.getLogger(__name__)

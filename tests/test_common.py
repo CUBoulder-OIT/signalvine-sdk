@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timezone
-from src.signalvine_sdk.common import (
+from signalvine_sdk.common import (
     build_headers,
     convert_participant_to_record,
     convert_participants_to_records,
