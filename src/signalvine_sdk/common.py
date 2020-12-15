@@ -36,16 +36,10 @@ def build_headers(
     path_no_query: str = "",
     body: str = "",
 ) -> Dict:
-    """
-    Build out the headers for SignalVine
-
-    Returns a dictionary of headers including authorization
-    """
 
     now_date = datetime.now(timezone.utc).isoformat()
 
     auth_string = sign_request(token, secret, now_date, action, path_no_query, body)
-
     auth_header = f"SignalVine {token}:{auth_string}"
     headers = {
         "Content-Type": "application/json",
