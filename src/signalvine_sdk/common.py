@@ -30,7 +30,11 @@ class APIError(Error):
 
 
 def build_headers(
-    token: str, secret: str, action: str, path_no_query: str, body: str = ""
+    token: str,
+    secret: str,
+    action: str = "GET",
+    path_no_query: str = "",
+    body: str = "",
 ) -> Dict:
     """
     Build out the headers for SignalVine

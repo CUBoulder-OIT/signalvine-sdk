@@ -36,8 +36,8 @@ class TestClass:
         result = build_headers(
             token="INVENTED_TOKEN",
             secret="INVENTED_TOKEN",
-            action="GET",
             path_no_query="/bogus",
+            action="GET",
         )
 
         # The cryptostring changes with the date from sign_request

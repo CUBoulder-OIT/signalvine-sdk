@@ -144,7 +144,6 @@ class SignalVineSDK:
             token=self.account_token,
             secret=self.account_secret,
             action="POST",
-            path_no_query=None,
             body=header_body,
         )
 
