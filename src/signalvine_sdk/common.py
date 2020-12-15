@@ -44,7 +44,7 @@ def build_headers(
 
     now_date = datetime.now(timezone.utc).isoformat()
 
-    auth_string = sign_request(token, secret, now_date, action, path_no_query)
+    auth_string = sign_request(token, secret, now_date, action, path_no_query, body)
 
     auth_header = f"SignalVine {token}:{auth_string}"
     headers = {
