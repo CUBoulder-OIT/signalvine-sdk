@@ -29,7 +29,7 @@ if isfile(requirement_path):
 # This call to setup() does all the work
 setup(
     name="signalvine-sdk",
-    version="0.2.1rc1",
+    version="0.3.0",
     description="SignalVine API SDK",
     long_description=README,
     long_description_content_type="text/markdown",
