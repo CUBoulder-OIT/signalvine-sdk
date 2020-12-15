@@ -1,5 +1,6 @@
+import pandas as pd
 import pytest
-import os
+import os, io, csv
 from signalvine_sdk.sdk import SignalVineSDK
 from signalvine_sdk.common import APIError
 import logging
@@ -66,3 +67,25 @@ class TestClass:
         # profile field 'customer_id'
         assert "customer_id" in keys
         assert "customerId" not in keys
+
+    def test_upsert_participants(self, sdk_connection):
+
+        program_id = os.environ.get("PROGRAM_ID")
+        assert program_id
+
+        example_file = os.path.join(os.path.dirname(__file__), "Example-Insert1.csv")
+        assert os.path.exists(example_file), "An example CSV file cannot be found."
+
+        items_df = pd.read_csv(
+            example_file,
+            quoting=csv.QUOTE_MINIMAL,
+            dtype=str,
+            encoding="unicode_escape",
+        )
+
+        records = sdk_connection.upsert_participants(
+            program_id=program_id, records_df=items_df, mode="add"
+        )
+
+        # TODO
+        LOGGER.info(records)

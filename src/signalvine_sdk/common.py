@@ -2,6 +2,7 @@ import hmac
 import hashlib
 import base64
 import logging
+import pandas as pd
 from typing import Dict, List
 from datetime import datetime, timezone
 from box import Box
@@ -108,3 +109,25 @@ def convert_participants_to_records(items, include_agg: bool = False) -> List:
         new_list.append(record)
 
     return new_list
+
+
+def make_body(program_id: str, content_df: pd.DataFrame, mode: str):
+    """
+    From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
+
+    mode can be 'add' or 'ignore'
+
+    """
+    contents = content_df.to_csv(index=False, line_terminator="\n")
+    columns = content_df.columns.tolist()
+
+    if not columns:
+        columns = "ignore"
+
+    body = {
+        "program": f"{program_id}",
+        "options": {"new": mode, "mode": "tx", "existing": columns, "absent": "ignore"},
+        "participants": f"{contents}",
+    }
+
+    return body

@@ -1,9 +1,14 @@
 import logging
+import csv
 from datetime import datetime, timezone
+import io
+
+import pandas as pd
 from signalvine_sdk.common import (
     build_headers,
     convert_participant_to_record,
     convert_participants_to_records,
+    make_body,
     sign_request,
 )
 
@@ -543,3 +548,43 @@ class TestClass:
                 "active": "false",
             }
         ]
+
+    def test_make_body(self):
+
+        items = """
+"group_list","target_group","opt_in","phone","email","first_name","customer_id","ref","full_name","last_name"
+"Arts and Sciences","","True","+1 555-555-5555","stta9820@colorado.edu","Steve","1234-123-123-1234","123456780","Taylor, Steve","Taylor"
+        """
+
+        f = io.StringIO(items)
+
+        items_df = pd.read_csv(
+            f,
+            quoting=csv.QUOTE_MINIMAL,
+            dtype=str,
+            encoding="unicode_escape",
+        )
+
+        records = make_body("1234-123-123-1234", items_df, "add")
+
+        assert records == {
+            "program": "1234-123-123-1234",
+            "options": {
+                "new": "add",
+                "mode": "tx",
+                "existing": [
+                    "group_list",
+                    "target_group",
+                    "opt_in",
+                    "phone",
+                    "email",
+                    "first_name",
+                    "customer_id",
+                    "ref",
+                    "full_name",
+                    "last_name",
+                ],
+                "absent": "ignore",
+            },
+            "participants": 'group_list,target_group,opt_in,phone,email,first_name,customer_id,ref,full_name,last_name\nArts and Sciences,,True,+1 555-555-5555,stta9820@colorado.edu,Steve,1234-123-123-1234,123456780,"Taylor, Steve",Taylor\n',
+        }
