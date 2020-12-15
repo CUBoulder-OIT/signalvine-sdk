@@ -1,5 +1,6 @@
+import pandas as pd
 import pytest
-import os
+import os, io, csv
 from signalvine_sdk.sdk import SignalVineSDK
 from signalvine_sdk.common import APIError
 import logging
@@ -10,13 +11,11 @@ LOGGER = logging.getLogger(__name__)
 @pytest.fixture(scope="module")
 def sdk_connection():
 
-    # It's expensive, but in this case noisy to keep
-    # repeating this for every function.
-
     # These need to be set or exported to work
     account_number = os.environ.get("ACCOUNT_NUMBER")
     account_token = os.environ.get("ACCOUNT_TOKEN")
     account_secret = os.environ.get("ACCOUNT_SECRET")
+    assert account_secret, "Secrets are not set at the environment."
 
     # instantiate the API class using environment variables
     return SignalVineSDK(
@@ -58,11 +57,7 @@ class TestClass:
         items = sdk_connection.get_participants(
             program_id=program_id, chunk_size=500, include_active=True
         )
-        assert isinstance(items, list)
+        assert isinstance(items, pd.DataFrame)
 
-        # get just the keys
-        keys = set().union(*(i.keys() for i in items))
-        # The 'cooked' version doesn't have customerId, just the
-        # profile field 'customer_id'
-        assert "customer_id" in keys
-        assert "customerId" not in keys
+        assert "customer_id" in items.columns
+        assert "customerId" not in items.columns

@@ -2,6 +2,7 @@ import hmac
 import hashlib
 import base64
 import logging
+import pandas as pd
 from typing import Dict, List
 from datetime import datetime, timezone
 from box import Box
@@ -29,18 +30,16 @@ class APIError(Error):
 
 
 def build_headers(
-    token: str, secret: str, action: str, path_no_query: str, body: str = ""
+    token: str,
+    secret: str,
+    action: str = "GET",
+    path_no_query: str = "",
+    body: str = "",
 ) -> Dict:
-    """
-    Build out the headers for SignalVine
-
-    Returns a dictionary of headers including authorization
-    """
 
     now_date = datetime.now(timezone.utc).isoformat()
 
-    auth_string = sign_request(token, secret, now_date, action, path_no_query)
-
+    auth_string = sign_request(token, secret, now_date, action, path_no_query, body)
     auth_header = f"SignalVine {token}:{auth_string}"
     headers = {
         "Content-Type": "application/json",
@@ -108,3 +107,36 @@ def convert_participants_to_records(items, include_agg: bool = False) -> List:
         new_list.append(record)
 
     return new_list
+
+
+def make_body(
+    program_id: str,
+    content_df: pd.DataFrame,
+    new_flag: str = "add",
+    mode_flag: str = "tx",
+):
+    """
+    From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
+
+    new_flag can be 'add' or 'ignore'
+    mode_flag can be 'tx' or 'row'
+
+    """
+    contents = content_df.to_csv(index=False, line_terminator="\n")
+    columns = content_df.columns.tolist()
+
+    if not columns:
+        columns = "ignore"
+
+    body = {
+        "program": f"{program_id}",
+        "options": {
+            "new": new_flag,
+            "mode": mode_flag,
+            "existing": columns,
+            "absent": "ignore",
+        },
+        "participants": f"{contents}",
+    }
+
+    return body
