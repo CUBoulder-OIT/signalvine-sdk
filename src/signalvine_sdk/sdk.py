@@ -9,7 +9,7 @@ from signalvine_sdk.common import (
     convert_participants_to_records,
     make_body,
 )
-from typing import List, Dict, Tuple
+from typing import List, Dict, Optional, Tuple, Union
 
 LOGGER = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class SignalVineSDK:
 
     def get_participants(
         self, program_id: str, chunk_size: int = 500, include_active: bool = True
-    ) -> List:
+    ) -> pd.DataFrame:
         """
         A blunt but effective way of retreiving all of the records.
 
@@ -107,7 +107,7 @@ class SignalVineSDK:
         it's unclear how long the token is valid for, so I'm not taking the
         chance of timing-out while getting all the chunks.
 
-        This method returns 'cooked' participant data, viz.,
+        This method returns a DataFrame of 'cooked' participant data, viz.,
         just the cleaned up profile fields.
         """
 
@@ -126,7 +126,7 @@ class SignalVineSDK:
             sv_records += convert_participants_to_records(raw_items)
             offset += chunk_size
 
-        return sv_records
+        return pd.DataFrame(sv_records)
 
     def upsert_participants(
         self,
@@ -134,7 +134,7 @@ class SignalVineSDK:
         records_df: pd.DataFrame,
         new_flag: str = "add",
         mode_flag: str = "tx",
-    ) -> str:
+    ):
         """
         From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
 
@@ -182,7 +182,7 @@ class SignalVineSDK:
         else:
             raise APIError(r.status_code, f"API reason: {r.text}")
 
-    def get_location_status(self, location_path: str) -> Tuple[bool, Dict]:
+    def get_location_status(self, location_path: str) -> Tuple[bool, str]:
         url = f"{self.api_hostname}{location_path}"
 
         headers = build_headers(
