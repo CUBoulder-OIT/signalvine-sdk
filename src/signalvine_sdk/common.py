@@ -109,11 +109,17 @@ def convert_participants_to_records(items, include_agg: bool = False) -> List:
     return new_list
 
 
-def make_body(program_id: str, content_df: pd.DataFrame, mode: str):
+def make_body(
+    program_id: str,
+    content_df: pd.DataFrame,
+    new_flag: str = "add",
+    mode_flag: str = "tx",
+):
     """
     From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
 
-    mode can be 'add' or 'ignore'
+    new_flag can be 'add' or 'ignore'
+    mode_flag can be 'tx' or 'row'
 
     """
     contents = content_df.to_csv(index=False, line_terminator="\n")
@@ -124,7 +130,12 @@ def make_body(program_id: str, content_df: pd.DataFrame, mode: str):
 
     body = {
         "program": f"{program_id}",
-        "options": {"new": mode, "mode": "tx", "existing": columns, "absent": "ignore"},
+        "options": {
+            "new": new_flag,
+            "mode": mode_flag,
+            "existing": columns,
+            "absent": "ignore",
+        },
         "participants": f"{contents}",
     }
 

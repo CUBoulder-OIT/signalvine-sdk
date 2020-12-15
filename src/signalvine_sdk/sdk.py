@@ -2,13 +2,14 @@ import pandas as pd
 import requests
 import logging
 import json
+import time
 from signalvine_sdk.common import (
     APIError,
     build_headers,
     convert_participants_to_records,
     make_body,
 )
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ class SignalVineSDK:
         if r.status_code == 200:
             return r.json()["items"]
         else:
-            raise APIError(r.status_code, f"API reason: {r.reason}")
+            raise APIError(r.status_code, f"API reason: {r.text}")
 
     def get_participants_chunk(
         self,
@@ -89,7 +90,7 @@ class SignalVineSDK:
         if r.status_code == 200:
             return r.json()["items"]
         else:
-            raise APIError(r.status_code, f"API reason: {r.reason}")
+            raise APIError(r.status_code, f"API reason: {r.text}")
 
     def get_participants(
         self, program_id: str, chunk_size: int = 500, include_active: bool = True
@@ -127,7 +128,13 @@ class SignalVineSDK:
 
         return sv_records
 
-    def upsert_participants(self, program_id: str, records_df: pd.DataFrame, mode: str):
+    def upsert_participants(
+        self,
+        program_id: str,
+        records_df: pd.DataFrame,
+        new_flag: str = "add",
+        mode_flag: str = "tx",
+    ) -> str:
         """
         From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
 
@@ -136,7 +143,12 @@ class SignalVineSDK:
 
         participant_path = f"/v2/programs/{program_id}/participants"
 
-        body = make_body(program_id=program_id, content_df=records_df, mode=mode)
+        body = make_body(
+            program_id=program_id,
+            content_df=records_df,
+            new_flag=new_flag,
+            mode_flag=mode_flag,
+        )
 
         header_body = json.dumps(body, separators=(",", ":"), sort_keys=False)
 
@@ -144,13 +156,52 @@ class SignalVineSDK:
             token=self.account_token,
             secret=self.account_secret,
             action="POST",
+            path_no_query=participant_path,
             body=header_body,
         )
 
         url = f"{self.api_hostname}{participant_path}"
         r = requests.post(url, json=body, headers=headers)
 
+        # Things get funky here. We're looking for a 202, and if so,
+        # get a Location from the headers, then GET that (in a loop?!)
+        # until we see "complete".
+
+        if r.status_code == 202:
+
+            location_path = r.headers["Location"]
+
+            i = 0
+            while i < 42:
+                status_complete, status_msg = self.get_location_status(location_path)
+                i += 1
+                if status_complete == True:
+                    return status_msg
+                time.sleep(1)
+
+        else:
+            raise APIError(r.status_code, f"API reason: {r.text}")
+
+    def get_location_status(self, location_path: str) -> Tuple[bool, Dict]:
+        url = f"{self.api_hostname}{location_path}"
+
+        headers = build_headers(
+            token=self.account_token,
+            secret=self.account_secret,
+            path_no_query=location_path,
+        )
+
+        r = requests.get(url, headers=headers)
         if r.status_code == 200:
-            return r.json()
+            status_json = r.json()
+            if status_json["complete"] == True:
+                # only if this is complete do we care to sift through it.
+                if status_json["error"] == True:
+                    return True, status_json["message"]
+                else:
+                    return True, None
+            else:
+                # not complete; just say so
+                return False, None
         else:
             raise APIError(r.status_code, f"API reason: {r.text}")
