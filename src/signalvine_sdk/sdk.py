@@ -138,7 +138,7 @@ class SignalVineSDK:
         """
         From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
 
-        mode can be 'add' or 'ignore'
+        It's on you to format the dates correctly in the dataframe.
         """
 
         participant_path = f"/v2/programs/{program_id}/participants"
