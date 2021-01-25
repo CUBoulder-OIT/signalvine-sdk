@@ -1,3 +1,4 @@
+from attr import fields
 import pandas as pd
 import pytest
 import os, io, csv
@@ -61,3 +62,12 @@ class TestClass:
 
         assert "customer_id" in items.columns
         assert "customerId" not in items.columns
+
+    def test_get_program_schema(self, sdk_connection):
+
+        program_id = os.environ.get("PROGRAM_ID")
+
+        fields_dict = sdk_connection.get_program_schema(program_id=program_id)
+
+        assert isinstance(fields_dict, dict)
+        assert fields_dict["first_name"] == "String"

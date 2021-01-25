@@ -7,9 +7,11 @@ from signalvine_sdk.common import (
     APIError,
     build_headers,
     convert_participants_to_records,
+    convert_sv_types,
     make_body,
 )
 from typing import List, Dict, Optional, Tuple, Union
+from box import Box
 
 LOGGER = logging.getLogger(__name__)
 
@@ -139,7 +141,12 @@ class SignalVineSDK:
         From https://support.signalvine.com/hc/en-us/articles/360023207353-API-documentation
 
         It's on you to format the dates correctly in the dataframe.
+
+        Also, this drops duplicates. No quarter. It's mayhem in SV if a phone already exists.
         """
+
+        # Drop the duplicates... TODO log duplicate numbers
+        records_df = records_df.drop_duplicates(subset=["phone"], keep=False)
 
         participant_path = f"/v2/programs/{program_id}/participants"
 
@@ -203,5 +210,43 @@ class SignalVineSDK:
             else:
                 # not complete; just say so
                 return False, None
+        else:
+            raise APIError(r.status_code, f"API reason: {r.text}")
+
+    def get_program_schema(self, program_id, convert_to_python_types=False) -> Dict:
+        """
+        Get the schema for the participant records
+        Return it as a dictionary in the form {name:type}.
+        Type is still the SignalVine type.
+
+        Set convert_to_python_types to True to return Python primative types instead
+        """
+
+        schema_path = f"/v1/programs/{program_id}"
+
+        # We build the headers off the path alone without query
+        headers = build_headers(
+            self.account_token, self.account_secret, "GET", schema_path
+        )
+
+        url = f"{self.api_hostname}{schema_path}"
+
+        # We could also just tack these to the end of the url
+        params = {"type": "schema"}
+
+        r = requests.get(url, params=params, headers=headers)
+
+        if r.status_code == 200:
+
+            # convert the fields to a dict
+            fields_dict = {}
+            for item in r.json()["fields"]:
+                fields_dict[item["name"]] = item["type"]
+
+            if convert_to_python_types:
+                return convert_sv_types(fields_dict)
+            else:
+                return fields_dict
+
         else:
             raise APIError(r.status_code, f"API reason: {r.text}")

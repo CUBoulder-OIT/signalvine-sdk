@@ -134,3 +134,22 @@ class TestClass:
         )
 
         assert "Could not parse 'sure why not' as Maybe (Boolean)" in response
+
+    def test_upsert_participants_2(self, sdk_connection):
+        """
+        Using data from Slate, which makes this tricky to check in.
+        """
+
+        program_id = os.environ.get("PROGRAM_ID")
+        assert program_id
+
+        df = pd.read_csv("tests/.private/FY-20210121.csv", dtype=str)
+
+        response = sdk_connection.upsert_participants(
+            program_id=program_id, records_df=df, new_flag="add"
+        )
+
+        LOGGER.info(response)
+
+        # should be nice and quiet
+        assert response == None

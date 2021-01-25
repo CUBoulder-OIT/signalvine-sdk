@@ -1,3 +1,4 @@
+import csv
 import hmac
 import hashlib
 import base64
@@ -140,3 +141,32 @@ def make_body(
     }
 
     return body
+
+
+def convert_sv_types(field_dict):
+    """
+    SignalVine has it's own types that we'll map over to Python primatives.
+    """
+
+    new_dict = {}
+    for k, v in field_dict.items():
+        print(k, v)
+
+        if "Maybe" in v:
+            required = False
+        else:
+            required = True
+
+        if "Boolean" in v:
+            new_type = "bool"
+        elif "Numeric" in v:
+            new_type = "int"
+        elif "Float" in v:
+            new_type = "float"
+        else:
+            # This will sweep in Date too for now. TBD
+            new_type = "str"
+
+        new_dict[k] = {"type": new_type, "required": required}
+
+    return new_dict
