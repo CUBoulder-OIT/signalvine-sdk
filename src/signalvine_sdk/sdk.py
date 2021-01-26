@@ -143,10 +143,12 @@ class SignalVineSDK:
         It's on you to format the dates correctly in the dataframe.
 
         Also, this drops duplicates. No quarter. It's mayhem in SV if a phone already exists.
+
+        Mode is 'row' or 'tx'. In tx mode, it's all or nothing.
         """
 
         # Drop the duplicates... TODO log duplicate numbers
-        records_df = records_df.drop_duplicates(subset=["phone"], keep=False)
+        # records_df = records_df.drop_duplicates(subset=["phone"], keep=False)
 
         participant_path = f"/v2/programs/{program_id}/participants"
 
@@ -175,17 +177,9 @@ class SignalVineSDK:
         # until we see "complete".
 
         if r.status_code == 202:
-
+            # return the location path so we can orchestrate it outside of here.
             location_path = r.headers["Location"]
-
-            i = 0
-            while i < 42:
-                status_complete, status_msg = self.get_location_status(location_path)
-                i += 1
-                if status_complete == True:
-                    return status_msg
-                time.sleep(1)
-
+            return location_path
         else:
             raise APIError(r.status_code, f"API reason: {r.text}")
 

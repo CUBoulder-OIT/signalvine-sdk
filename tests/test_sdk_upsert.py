@@ -144,12 +144,25 @@ class TestClass:
         assert program_id
 
         df = pd.read_csv("tests/.private/FY-20210121.csv", dtype=str)
+        # remove duplicates across the whole set
+        df = df.drop_duplicates(subset=["phone"], keep=False)
+        df = df.head(1001)
 
-        response = sdk_connection.upsert_participants(
+        # Unlike some of these we're not looking for status codes...
+        # The upsert_participants either returned a 202 or threw an error.
+        # If it sent 202, then location_path should be useful.
+        location_path = sdk_connection.upsert_participants(
             program_id=program_id, records_df=df, new_flag="add"
         )
 
-        LOGGER.info(response)
+        # Do this in a loop?
+        status_complete, status_msg = sdk_connection.get_location_status(location_path)
+
+        if status_complete:
+            LOGGER.info(f"Complete {status_msg}")
+        else:
+            # TODO orchestrate a decent waiting test on this
+            LOGGER.info(f"Not complete... but moving forward for now.")
 
         # should be nice and quiet
-        assert response == None
+        assert status_complete == True
