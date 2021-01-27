@@ -7,6 +7,10 @@ from box import Box
 import logging
 
 LOGGER = logging.getLogger(__name__)
+TEST_GROUP = "Test Contacts"
+TEST_NAME_FRED = "Flintstone, Fred"
+TEST_EMAIL_FRED = "fred@flintstone.com"
+TEST_PHONE_FRED = "+13035550100"
 
 
 @pytest.fixture(scope="module")
@@ -46,10 +50,10 @@ class TestClass:
                 "active": False,
                 "first_name": "Fred",
                 "last_name": "Flintstone",
-                "group_list": "Test Contacts",
+                "group_list": TEST_GROUP,
                 "target_group": None,
-                "email": "fred@flintstone.com",
-                "phone": "+13035550100",
+                "email": TEST_EMAIL_FRED,
+                "phone": TEST_PHONE_FRED,
                 "full_name": "Flintstone, Fred",
             },
             {
@@ -90,9 +94,9 @@ class TestClass:
                 "last_name": "Flintstone",
                 "group_list": "Test Contacts",
                 "target_group": None,
-                "email": "fred@flintstone.com",
-                "phone": "+13035550100",
-                "full_name": "Flintstone, Fred",
+                "email": TEST_EMAIL_FRED,
+                "phone": TEST_PHONE_FRED,
+                "full_name": TEST_NAME_FRED,
                 "can_ride_tyrannosaurus": True,
                 "honors": "sure why not",
             },
@@ -118,11 +122,11 @@ class TestClass:
                 "active": False,
                 "first_name": "Fred",
                 "last_name": "Flintstone",
-                "group_list": "Test Contacts",
+                "group_list": TEST_GROUP,
                 "target_group": None,
-                "email": "fred@flintstone.com",
+                "email": TEST_EMAIL_FRED,
                 "phone": "+13035550100",
-                "full_name": "Flintstone, Fred",
+                "full_name": TEST_NAME_FRED,
                 "honors": "sure why not",
             },
         ]
