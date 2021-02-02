@@ -1,2 +1,2 @@
-pandas~=1.2
-python-box~=5.2
+pandas
+python-box
