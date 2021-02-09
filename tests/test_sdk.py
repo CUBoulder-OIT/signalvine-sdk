@@ -51,18 +51,6 @@ class TestClass:
         keys = set().union(*(i.keys() for i in items))
         assert "customerId" in keys
 
-    def test_get_participants(self, sdk_connection):
-
-        program_id = os.environ.get("PROGRAM_ID")
-
-        items = sdk_connection.get_participants(
-            program_id=program_id, chunk_size=500, include_active=True
-        )
-        assert isinstance(items, pd.DataFrame)
-
-        assert "customer_id" in items.columns
-        assert "customerId" not in items.columns
-
     def test_get_program_schema(self, sdk_connection):
 
         program_id = os.environ.get("PROGRAM_ID")

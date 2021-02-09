@@ -94,42 +94,6 @@ class SignalVineSDK:
         else:
             raise APIError(r.status_code, f"API reason: {r.text}")
 
-    def get_participants(
-        self, program_id: str, chunk_size: int = 500, include_active: bool = True
-    ) -> pd.DataFrame:
-        """
-        A blunt but effective way of retreiving all of the records.
-
-        SV has a limit to the number of calls per second, but a chunk size of 500
-        or so ensures the process takes a little time each call.
-
-        Since, this makes a call to get_participants_chunk each time,
-        the headers are rebuilt each time with new signing tokens. It works,
-        but is a little heavy. Ideally I'd reuse the token in a session, but
-        it's unclear how long the token is valid for, so I'm not taking the
-        chance of timing-out while getting all the chunks.
-
-        This method returns a DataFrame of 'cooked' participant data, viz.,
-        just the cleaned up profile fields.
-        """
-
-        offset = 0
-        sv_records = []
-
-        while True:
-            LOGGER.debug(f"Offset {offset}")
-            raw_items = self.get_participants_chunk(
-                program_id, chunk_size, offset, include_active
-            )
-            if len(raw_items) == 0:
-                LOGGER.debug("No more items.")
-                break
-
-            sv_records += convert_participants_to_records(raw_items)
-            offset += chunk_size
-
-        return pd.DataFrame(sv_records)
-
     def upsert_participants(
         self,
         program_id: str,
