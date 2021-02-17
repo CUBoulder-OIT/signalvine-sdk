@@ -28,3 +28,9 @@ From the OS, set or export SignalVine variables for the tests:
 
     # To test a single
     pytest tests\test_sdk.py -k "test_upsert_participants"
+
+## Miscellania
+
+All trademarks, service marks and company names are the property of their respective owners.
+
+Reference in this site to any specific commercial product, process, or service, or the use of any trade, firm or corporation name is for the information and convenience of the public, and does not constitute endorsement, recommendation, or favoring by the University of Colorado.
