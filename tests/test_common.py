@@ -561,10 +561,7 @@ class TestClass:
         f = io.StringIO(items)
 
         items_df = pd.read_csv(
-            f,
-            quoting=csv.QUOTE_MINIMAL,
-            dtype=str,
-            encoding="unicode_escape",
+            f, quoting=csv.QUOTE_MINIMAL, dtype=str, encoding="unicode_escape",
         )
 
         records = make_body("1234-123-123-1234", items_df, "add")
